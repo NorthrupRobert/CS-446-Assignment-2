@@ -32,6 +32,8 @@ typedef struct _thread_data_t {
 
 
 int main(int argc, char* argv[]) {
+  unsigned long maxThreadCount = 0;
+
   printf("FUCK1\n");
   int* data = malloc(100000000 * sizeof(int));
   printf("FUCK2\n");
@@ -43,30 +45,34 @@ int main(int argc, char* argv[]) {
 
   printf("FUCK3\n");
 
-  if (readFile(argv[1], &data) == -1) {
+  if ((maxThreadCount = readFile(argv[1], &data)) == -1) {
     fprintf(stderr, "%s", "File not found...\n");
     return -1;
   }
 
   printf("FUCK4\n");
+  printf("Max thread count: %ld\n", maxThreadCount);
 
-  // int numThreadsReq = 0;
-  // for (int i = 0; i < strlen(argv[2]); i++) {
-  //   numThreadsReq += ((*(argv[2] + i) - 48) * power(10, (strlen(argv[2]) - i - 1)));
-  // }
-  // if (numThreadsReq < numThreadAvail)
+  int numThreadsReq = 0;
+  for (int i = 0; i < strlen(argv[2]); i++) {
+    numThreadsReq += ((*(argv[2] + i) - 48) * power(10, (strlen(argv[2]) - i - 1)));
+  }
+  if (numThreadsReq > maxThreadCount) {
+    fprintf(stderr, "%s", "Too many threads requested\n");
+    return -1;
+  }
   
   return 0;
 }
 
 int readFile(char filename[], int** data) {
   printf("FUCK5\n");
-  FILE* file = open(filename, "r");
+  FILE* file = fopen(filename, "r");
   int curNum = 0;
 
   printf("FUCK6\n");
   // file argument is assumed not NULL, thus...
-  if (file  == NULL) { //file opened successfully?
+  if (file == NULL) { //file opened successfully?
     return -1;
   }
 
@@ -76,10 +82,8 @@ int readFile(char filename[], int** data) {
   int i = 0;
   printf("FUCK10\n");
   while (fscanf(file, "%d", &curNum) != EOF) {
-    printf("FUCK9\n");
     (*data)[i] = curNum;
     i++;
-    printf("%d\n", i);
   }
   printf("FUCK8\n");
 
